@@ -1,8 +1,33 @@
 #!/bin/bash
 # hacker-scripts by ZL, https://objczl.com
 # Copyright (C) 2020 Liang Zeng.
+###
+### search.sh — search plain text file with multi-keywords
+###
+### Usage:
+###     search.sh [word1|word2|word2] [path]
+###
+### Options:
+###     <wordx>   Input keywords to search.
+###     <path>    Searching path.
+###     -h        Show this message.
 
+help() {
+	awk -F'### ' '/^###/ { print $2 }' "$0"
+}
+
+if [[ $# == 0 || "$1" == "-h" ]]; then
+	help
+	exit 1
+fi
+
+dir=$(pwd)
 array=("$@")
+if [[ -d ${!#} ]]; then
+	dir=${!#}
+	array=("${@:1:$#-1}")
+fi
+
 pattern=${array[0]}
 for (( i = 1; i < ${#array[@]}; i++ )); do
 	pattern+='|'
@@ -25,7 +50,7 @@ function add_quotes()
 
 function search()
 {
-	rg -i -l "$pattern" > $res_file
+	rg -i -l "$pattern" "$dir" > $res_file
 	add_quotes
 
 	list=("$@")
